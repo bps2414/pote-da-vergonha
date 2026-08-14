@@ -1,7 +1,7 @@
 {
-  "name": "Pote da Vergonha - Bate-Ponto Escolar",
-  "short_name": "PoteVergonha",
-  "description": "Quem falta se ferra! Bate-ponto escolar com fotos BeReal, Tribunal dos Amigos e multas em dinheiro.",
+  "name": "Bonde dos Presentes - Bate-Ponto Escolar",
+  "short_name": "BondePresentes",
+  "description": "Bate-ponto escolar com fotos BeReal, Tribunal dos Amigos e multas em dinheiro para quem faltar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0d14",

@@ -1,7 +1,7 @@
 {
-  "name": "pote-da-vergonha",
+  "name": "bonde-dos-presentes",
   "version": "1.0.0",
-  "description": "Jogo social mobile-first de presença escolar com Pote da Vergonha, Tribunal BeReal e cobrança PIX.",
+  "description": "Jogo social mobile-first de presença escolar com Tribunal BeReal e cofrinho de multas.",
   "main": "server.js",
   "type": "module",
   "scripts": {
