@@ -1,0 +1,24 @@
+{
+  "name": "pote-da-vergonha",
+  "version": "1.0.0",
+  "description": "Jogo social mobile-first de presença escolar com Pote da Vergonha, Tribunal BeReal e cobrança PIX.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "school",
+    "gamification",
+    "pwa",
+    "bereal",
+    "pix",
+    "attendance"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

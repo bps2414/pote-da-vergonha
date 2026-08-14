@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pote da Vergonha - Bate-Ponto Escolar dos Amigos</title>
+  
+  <!-- PWA Settings -->
+  <meta name="theme-color" content="#0a0d14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="/styles/components.css" />
+  <link rel="stylesheet" href="/styles/animations.css" />
+</head>
+<body>
+
+  <!-- App Wrapper constrained for Mobile feel on Desktop -->
+  <div id="app-root">
+    
+    <!-- Top Sticky Header -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="brand-icon">🚨</div>
+        <div class="brand-text">
+          <h1>Pote da Vergonha</h1>
+          <span class="brand-badge">School Survival</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live Sync Pill -->
+        <div class="sync-live-pill" title="Sincronização em tempo real ativa">
+          <span class="sync-dot-live"></span>
+          <span id="header-sync-status">Ao vivo</span>
+        </div>
+
+        <button id="btn-share-room" class="room-pill-btn" title="Convidar amigos para este bonde">
+          <span>📲</span>
+          <span id="header-room-code">BONDE1</span>
+        </button>
+
+        <div id="btn-user-switch" class="user-switch-avatar" title="Trocar de amigo (Simulador)">
+          <span id="header-user-avatar">😎</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Views Container -->
+    <main class="main-view-container">
+
+      <!-- ================= TAB 1: HOJE / DASHBOARD ================= -->
+      <section id="tab-hoje" class="tab-pane active">
+        
+        <!-- Onboarding Quick Invite Banner -->
+        <div id="home-onboarding-banner" class="onboarding-banner" style="display:none;">
+          <div class="onboarding-title">
+            <span>📢</span>
+            <span>Chame seus amigos para o bonde!</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-secondary);">
+            Envie o link da sua sala no grupo do WhatsApp da escola. Todo mundo que entrar começará a bater ponto aqui em tempo real.
+          </p>
+          <button type="button" onclick="window.__APP__.openShareModal()" class="btn-whatsapp-cobrar" style="text-decoration:none; padding:10px;">
+            💬 Enviar Link no WhatsApp
+          </button>
+        </div>
+
+        <!-- Pote Hero Banner -->
+        <div class="pot-hero-card">
+          <div class="pot-header-label">
+            <span class="pot-tag">💰 Pote das Multas Acumulado</span>
+            <span id="pot-members-count" class="pot-members-count">4 amigos no bonde</span>
+          </div>
+
+          <div class="pot-amount-display">
+            <span class="pot-currency">R$</span>
+            <span id="pot-value-number" class="pot-value">45.00</span>
+          </div>
+
+          <!-- Top Sponsor Banner -->
+          <div id="pot-sponsor-banner" class="pot-sponsor-banner">
+            <div class="pot-sponsor-info">
+              <div id="sponsor-avatar" class="sponsor-avatar">😴</div>
+              <div class="sponsor-name-wrap">
+                <span class="sponsor-title">👑 Maior Patrocinador do Mês</span>
+                <span id="sponsor-name" class="sponsor-name">Jorginho Soneca</span>
+              </div>
+            </div>
+            <div id="sponsor-debt-amount" class="sponsor-debt-amount">R$ 25.00</div>
+          </div>
+        </div>
+
+        <!-- Today Action Card -->
+        <div class="today-action-card">
+          <div class="today-header">
+            <div>
+              <div style="font-size:11px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">
+                Seu Bate-Ponto de Hoje
+              </div>
+              <div id="today-status-badge" class="today-status-badge pending" style="margin-top:4px;">
+                ⏳ PENDENTE - NÃO FALTE!
+              </div>
+            </div>
+            <div class="today-countdown">Tolerância até 12:30</div>
+          </div>
+
+          <button id="btn-open-camera" class="btn-primary-action">
+            📸 BATER PONTO (Tirar Foto da Sala)
+          </button>
+
+          <!-- Alternative File Upload -->
+          <div style="text-align:center;">
+            <label for="camera-file-input" style="font-size:11px; color:var(--text-muted); cursor:pointer; text-decoration:underline;">
+              Ou clique aqui para enviar foto da galeria
+            </label>
+            <input type="file" id="camera-file-input" accept="image/*" style="display:none;" />
+          </div>
+        </div>
+
+        <!-- Activity Logs -->
+        <div>
+          <h3 class="section-h2" style="margin-bottom:8px;">
+            ⚡ Últimos Acontecimentos
+          </h3>
+          <div id="activity-logs-container" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 16px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Simulation Quick Bar -->
+        <div style="background:rgba(255, 183, 3, 0.08); border:1px dashed rgba(255, 183, 3, 0.3); border-radius:var(--radius-md); padding:12px 16px; display:flex; align-items:center; justify-content:space-between;">
+          <div style="font-size:11px; color:var(--amber-pot);">
+            <b>🎮 Modo Teste:</b> Alterne entre os amigos para votar e cobrar.
+          </div>
+          <button class="room-pill-btn" onclick="window.__APP__.openUserSwitchModal()" style="font-size:11px; padding:4px 10px;">
+            Trocar Amigo
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: TRIBUNAL DOS AMIGOS ================= -->
+      <section id="tab-tribunal" class="tab-pane">
+        <div class="tribunal-section-title">
+          <h2 class="section-h2">
+            <span class="live-indicator"></span>
+            Tribunal ao Vivo
+          </h2>
+          <span style="font-size:11px; color:var(--text-secondary);">Vote se a foto é real ou fake</span>
+        </div>
+
+        <div id="tribunal-feed-container" class="tribunal-feed-list">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: RANKING & ZOEIRA ================= -->
+      <section id="tab-ranking" class="tab-pane">
+        <div>
+          <h2 class="section-h2">🏆 Ranking da Vergonha & Glória</h2>
+          <p style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+            Quem não falta lidera o placar. Quem dorme patrocina o bonde.
+          </p>
+        </div>
+
+        <div id="ranking-list-container" class="ranking-list">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: LOJA DE CARTAS XP ================= -->
+      <section id="tab-shop" class="tab-pane">
+        <div id="shop-container">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: EXTRATO & COBRANÇA PIX ================= -->
+      <section id="tab-extrato" class="tab-pane">
+        <div id="extrato-container">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: CONFIGURAÇÕES & SALA ================= -->
+      <section id="tab-settings" class="tab-pane">
+        <div>
+          <h2 class="section-h2">⚙️ Configurações da Sala</h2>
+          <p style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+            Ajuste seu horário de aula, crie sua própria sala ou convide a galera.
+          </p>
+        </div>
+
+        <!-- Quick Room Actions Bar -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <button type="button" onclick="window.__APP__.openShareModal()" class="btn-primary-action" style="padding:12px; font-size:12px; background:linear-gradient(135deg, var(--amber-pot), #d97706); color:#000;">
+            📲 Convidar Amigos
+          </button>
+          <button type="button" onclick="window.__APP__.openCreateRoomModal()" class="btn-primary-action" style="padding:12px; font-size:12px; background:var(--bg-surface-raised); border:1px solid var(--border-strong); color:var(--text-primary); box-shadow:none;">
+            ➕ Criar Nova Sala
+          </button>
+        </div>
+
+        <button type="button" onclick="window.__APP__.openJoinRoomModal()" style="width:100%; background:transparent; border:1px dashed var(--border-strong); border-radius:var(--radius-sm); padding:10px; color:var(--text-secondary); font-size:12px; cursor:pointer;">
+          🚪 Já tem o código de outra sala? Clique para entrar
+        </button>
+
+        <!-- My Profile Form -->
+        <form id="form-room-settings" style="background:var(--bg-surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-lg); padding:18px; display:flex; flex-direction:column; gap:14px;">
+          <div style="font-weight:800; font-size:14px; color:var(--amber-pot);">
+            👤 Seu Perfil Escolar
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-my-city">Sua Cidade / Estado</label>
+            <input type="text" id="input-my-city" class="form-input" placeholder="Ex: São Paulo - SP" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-my-time">Horário de Aula</label>
+            <input type="text" id="input-my-time" class="form-input" placeholder="Ex: 07:15 - 12:30" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-my-pix">Sua Chave PIX (Para receber o prêmio)</label>
+            <input type="text" id="input-my-pix" class="form-input" placeholder="Ex: seuemail@pix.com.br ou CPF" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-fine-amount">Multa por Falta na Sala (R$)</label>
+            <input type="number" step="0.50" id="input-fine-amount" class="form-input" placeholder="5.00" required />
+          </div>
+
+          <button type="submit" class="btn-primary-action" style="padding:12px; font-size:14px; background:linear-gradient(135deg, var(--emerald-presence), #059669);">
+            💾 Salvar Alterações
+          </button>
+        </form>
+
+        <!-- Add Friend Form -->
+        <form id="form-add-friend" style="background:var(--bg-surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-lg); padding:18px; display:flex; flex-direction:column; gap:14px;">
+          <div style="font-weight:800; font-size:14px; color:var(--text-primary);">
+            ➕ Adicionar Amigo de Outra Cidade
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-friend-name">Nome do Amigo</label>
+            <input type="text" id="input-friend-name" class="form-input" placeholder="Ex: Lucas de Salvador" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-friend-city">Cidade</label>
+            <input type="text" id="input-friend-city" class="form-input" placeholder="Ex: Salvador - BA" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-friend-time">Turno Escolar</label>
+            <input type="text" id="input-friend-time" class="form-input" placeholder="Ex: 13:00 - 18:00" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-friend-pix">Chave PIX do Amigo</label>
+            <input type="text" id="input-friend-pix" class="form-input" placeholder="Ex: lucas@pix.com" />
+          </div>
+
+          <button type="submit" class="btn-primary-action" style="padding:12px; font-size:14px; background:var(--bg-surface); border:1px solid var(--border-strong); color:var(--text-primary); box-shadow:none;">
+            🚀 Adicionar Amigo na Sala
+          </button>
+        </form>
+
+        <!-- Reset Button -->
+        <div style="text-align:center; padding-top:10px;">
+          <button type="button" onclick="window.__resetMock()" style="background:transparent; border:none; color:var(--text-muted); font-size:11px; text-decoration:underline; cursor:pointer;">
+            Restaurar dados de demonstração originais
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="tab-hoje">
+        <span class="nav-emoji">🏠</span>
+        <span>Hoje</span>
+      </button>
+
+      <button class="nav-item" data-tab="tab-tribunal">
+        <span class="nav-emoji">⚖️</span>
+        <span>Tribunal</span>
+      </button>
+
+      <button class="nav-item" data-tab="tab-ranking">
+        <span class="nav-emoji">🏆</span>
+        <span>Ranking</span>
+      </button>
+
+      <button class="nav-item" data-tab="tab-shop">
+        <span class="nav-emoji">🛒</span>
+        <span>Loja XP</span>
+      </button>
+
+      <button class="nav-item" data-tab="tab-extrato">
+        <span class="nav-emoji">💸</span>
+        <span>Extrato</span>
+        <span id="badge-count-extrato" class="nav-badge-count" style="display:none;">0</span>
+      </button>
+
+      <button class="nav-item" data-tab="tab-settings">
+        <span class="nav-emoji">⚙️</span>
+        <span>Sala</span>
+      </button>
+    </nav>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal Compartilhar / Convidar Amigos -->
+    <div id="modal-share-room" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">📲 Convidar Amigos pro Bonde</h3>
+          <button id="btn-close-share-modal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p style="font-size:13px; color:var(--text-secondary);">
+            Envie o link para seus amigos de qualquer cidade entrarem e começarem a bater ponto na sua sala:
+          </p>
+
+          <div style="background:var(--bg-surface-raised); border:1px dashed var(--amber-pot); border-radius:var(--radius-md); padding:16px; text-align:center;">
+            <div style="font-size:11px; font-weight:800; color:var(--amber-pot); text-transform:uppercase;">
+              Código da sua Sala
+            </div>
+            <div id="modal-display-room-code" style="font-family:var(--font-mono); font-size:28px; font-weight:800; color:#fff; margin:6px 0;">
+              BONDE1
+            </div>
+            <div style="font-size:11px; color:var(--text-muted);">
+              Qualquer amigo com este código entra direto no seu grupo.
+            </div>
+          </div>
+
+          <!-- WhatsApp Share Button -->
+          <a id="btn-whatsapp-invite" href="#" target="_blank" class="btn-whatsapp-cobrar" style="padding:14px; font-size:14px; text-decoration:none;">
+            💬 Enviar Convite no WhatsApp
+          </a>
+
+          <!-- Copy Link Button -->
+          <button id="btn-copy-invite-link" class="btn-primary-action" style="padding:14px; font-size:14px; background:var(--bg-surface-raised); border:1px solid var(--border-strong); color:var(--text-primary); box-shadow:none;">
+            📋 Copiar Link de Convite
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Criar Nova Sala -->
+    <div id="modal-create-room" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">➕ Criar Minha Própria Sala</h3>
+          <button id="btn-close-create-modal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <form id="form-create-new-room" style="display:flex; flex-direction:column; gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="input-new-room-name">Nome do Bonde/Grupo</label>
+              <input type="text" id="input-new-room-name" class="form-input" placeholder="Ex: Bonde dos Parceiros 🎓" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-new-fine-amount">Multa por Falta (R$)</label>
+              <input type="number" step="0.50" id="input-new-fine-amount" class="form-input" value="5.00" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-new-admin-name">Seu Nome</label>
+              <input type="text" id="input-new-admin-name" class="form-input" placeholder="Ex: Lucas" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-new-admin-city">Sua Cidade</label>
+              <input type="text" id="input-new-admin-city" class="form-input" placeholder="Ex: Curitiba - PR" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-new-admin-time">Seu Horário de Aula</label>
+              <input type="text" id="input-new-admin-time" class="form-input" placeholder="Ex: 07:30 - 12:40" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-new-admin-pix">Sua Chave PIX (Para receber prêmio)</label>
+              <input type="text" id="input-new-admin-pix" class="form-input" placeholder="Ex: lucas@pix.com" />
+            </div>
+
+            <button type="submit" class="btn-primary-action" style="padding:14px; font-size:14px; background:linear-gradient(135deg, var(--crimson-penalty), #d90429);">
+              🔥 Criar Sala e Pegar Link
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Entrar em Sala por Convite -->
+    <div id="modal-join-room" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">👋 Entrar em uma Sala de Amigos</h3>
+          <button id="btn-close-join-modal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p style="font-size:13px; color:var(--text-secondary);">
+            Preencha seus dados para entrar e começar a bater ponto na sala:
+          </p>
+
+          <form id="form-join-existing-room" style="display:flex; flex-direction:column; gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="input-join-room-code">Código da Sala</label>
+              <input type="text" id="input-join-room-code" class="form-input" placeholder="Ex: BONDE1" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-join-user-name">Seu Nome</label>
+              <input type="text" id="input-join-user-name" class="form-input" placeholder="Ex: Gabriela" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-join-user-city">Sua Cidade</label>
+              <input type="text" id="input-join-user-city" class="form-input" placeholder="Ex: São Paulo - SP" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-join-user-time">Seu Horário de Aula</label>
+              <input type="text" id="input-join-user-time" class="form-input" placeholder="Ex: 08:00 - 13:00" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-join-user-pix">Sua Chave PIX</label>
+              <input type="text" id="input-join-user-pix" class="form-input" placeholder="Ex: gabi@nubank.pix" />
+            </div>
+
+            <button type="submit" class="btn-primary-action" style="padding:14px; font-size:14px; background:linear-gradient(135deg, var(--emerald-presence), #059669);">
+              🚀 Entrar no Bonde Agora!
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div id="modal-camera" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">📸 Bater Ponto BeReal</h3>
+          <button id="btn-close-camera" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="camera-preview-container">
+            <video id="camera-video" class="camera-video" autoplay playsinline muted></video>
+            <div class="viewfinder-reticle"></div>
+            <canvas id="camera-canvas" class="camera-canvas"></canvas>
+          </div>
+
+          <div class="camera-controls-bar">
+            <button id="btn-camera-flip" class="camera-aux-btn" title="Girar câmera">🔄</button>
+            <button id="btn-camera-shutter" class="camera-shutter-btn" title="Tirar foto"></button>
+            <label for="camera-file-input" class="camera-aux-btn" title="Enviar arquivo">📁</label>
+          </div>
+
+          <div style="font-size:11px; text-align:center; color:var(--text-secondary);">
+            A foto receberá um carimbo automático com data, hora e sua cidade para o Tribunal aprovar.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Switcher Modal (Simulator) -->
+    <div id="modal-user-switch" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">👥 Trocar de Jogador (Simulador)</h3>
+          <button id="btn-close-user-modal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p style="font-size:12px; color:var(--text-secondary);">
+            Escolha qual amigo você deseja controlar agora para testar o envio de fotos, votação no tribunal e confirmação de PIX:
+          </p>
+
+          <div id="user-switch-list" style="display:flex; flex-direction:column; gap:10px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+  </div>
+
+  <!-- Application Modules -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

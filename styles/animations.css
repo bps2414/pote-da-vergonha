@@ -1,0 +1,135 @@
+/* ==========================================================================
+   POTE DA VERGONHA - ANIMATIONS & VISUAL FX
+   ========================================================================== */
+
+/* Floating Reaction Emojis */
+.floating-reaction {
+  position: fixed;
+  font-size: 32px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: floatUpAndFade 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes floatUpAndFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -30px) scale(1.3);
+  }
+  70% {
+    opacity: 0.9;
+    transform: translate(calc(-50% + 15px), -80px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% - 15px), -140px) scale(0.8);
+  }
+}
+
+/* Coin Drop / Pot Surge Effect */
+@keyframes potSurge {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12);
+    color: var(--crimson-penalty);
+  }
+  70% {
+    transform: scale(0.96);
+    color: var(--amber-pot);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pot-value-surge {
+  animation: potSurge 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Fraud Alert Shake */
+@keyframes fraudShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.shake-fraud {
+  animation: fraudShake 0.4s ease-in-out;
+}
+
+/* Stamp Slam Animation */
+@keyframes stampSlam {
+  0% {
+    opacity: 0;
+    transform: scale(3) rotate(-20deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.95) rotate(6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(6deg);
+  }
+}
+
+.stamp-slam {
+  animation: stampSlam 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Confetti Container */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10000;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall 2.5s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(-20px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+/* Tab Fade Transition */
+.tab-pane {
+  display: none;
+  animation: fadeInPane 0.22s ease-out forwards;
+}
+
+.tab-pane.active {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@keyframes fadeInPane {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
