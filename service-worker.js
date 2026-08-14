@@ -1,9 +1,7 @@
-const CACHE_NAME = 'quem-falta-v4';
+const CACHE_NAME = 'quem-falta-v5';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/styles/bundle.css',
-  '/js/app.bundle.js',
   '/assets/icon.svg',
   '/manifest.json'
 ];
