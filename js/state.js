@@ -6,35 +6,24 @@ import { sound } from './audio.js';
 class StateStore {
   constructor() {
     this.listeners = [];
+    this.room = null;
+    this.currentUserId = null;
     this.init();
   }
 
   init() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomParam = urlParams.get('room');
-
     const saved = storage.loadLocalState();
-    if (saved && saved.room && saved.room.members && saved.room.members.length > 0) {
-      this.currentUserId = saved.currentUserId || 'user_me';
+    if (saved && saved.room && saved.currentUserId && saved.room.members && saved.room.members.length > 0) {
+      this.currentUserId = saved.currentUserId;
       this.room = saved.room;
     } else {
-      this.currentUserId = 'user_me';
-      this.room = {
-        code: roomParam ? roomParam.toUpperCase() : 'BONDE1',
-        name: 'Bonde dos Presentes 🔥',
-        fineAmount: 5.00,
-        createdAt: new Date().toISOString(),
-        members: JSON.parse(JSON.stringify(INITIAL_MEMBERS)),
-        checkins: JSON.parse(JSON.stringify(INITIAL_CHECKINS)),
-        debts: JSON.parse(JSON.stringify(INITIAL_DEBTS)),
-        items: JSON.parse(JSON.stringify(SHOP_ITEMS)),
-        logs: [
-          { text: 'Jorginho tomou falta e deve R$ 5,00 para o pote.', time: 'Há 2 horas' },
-          { text: 'Gabi bateu ponto na aula de Matemática!', time: 'Há 45 min' }
-        ]
-      };
-      this.persist();
+      this.currentUserId = null;
+      this.room = null;
     }
+  }
+
+  isConfigured() {
+    return !!(this.room && this.currentUserId && this.room.members && this.room.members.length > 0);
   }
 
   createNewRoom(roomName, fineAmount, adminName, adminCity, adminTime, adminPix) {
@@ -219,10 +208,12 @@ class StateStore {
   }
 
   getCurrentUser() {
-    return this.room.members.find(m => m.id === this.currentUserId) || this.room.members[0];
+    if (!this.room || !this.room.members || this.room.members.length === 0) return null;
+    return this.room.members.find(m => m.id === this.currentUserId) || this.room.members[0] || null;
   }
 
   switchActiveUser(userId) {
+    if (!this.room || !this.room.members) return;
     const target = this.room.members.find(m => m.id === userId);
     if (target) {
       this.currentUserId = userId;
@@ -231,11 +222,13 @@ class StateStore {
   }
 
   getTotalPotAmount() {
+    if (!this.room || !this.room.members) return 0;
     return this.room.members.reduce((acc, m) => acc + (Number(m.currentDebt) || 0), 0);
   }
 
   getTopSponsor() {
-    const sorted = [...this.room.members].sort((a, b) => b.currentDebt - a.currentDebt);
+    if (!this.room || !this.room.members || this.room.members.length === 0) return null;
+    const sorted = [...this.room.members].sort((a, b) => (b.currentDebt || 0) - (a.currentDebt || 0));
     return sorted[0] && sorted[0].currentDebt > 0 ? sorted[0] : null;
   }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quem-falta-v2';
+const CACHE_NAME = 'quem-falta-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

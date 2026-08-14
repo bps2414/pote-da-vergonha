@@ -8,41 +8,76 @@ import { renderRanking, renderShop } from './gamification.js';
 
 class AppController {
   constructor() {
+    window.__APP__ = this;
     this.currentTab = 'tab-hoje';
     this.cameraEngine = null;
     this.init();
   }
 
   init() {
+    this.initGlobalHandlers();
+    this.setupGlobalDelegation();
     this.bindDOM();
     this.initCamera();
-    this.initGlobalHandlers();
     this.registerPWA();
-    this.updateUI();
-    this.checkUrlInvitation();
 
-    // Start Real-Time Background Sync with server
-    state.startAutoSync(3000);
+    // Check if user is in a room or needs onboarding
+    if (!state.isConfigured()) {
+      this.checkUrlAndOpenOnboarding();
+    } else {
+      this.updateUI();
+      // Start Real-Time Background Sync with server
+      state.startAutoSync(3000);
+    }
 
     // Subscribe to central state changes
     state.subscribe((s, event, data) => {
       this.updateUI(event, data);
     });
 
-    console.log('🔥 Pote da Vergonha App inicializado com Auto-Sync!');
+    console.log('🚀 Quem Falta Se Ferra App inicializado com sucesso!');
+  }
+
+  setupGlobalDelegation() {
+    document.addEventListener('click', (e) => {
+      // 1. Tab Navigation Clicks
+      const navBtn = e.target.closest('.nav-item');
+      if (navBtn) {
+        const targetTab = navBtn.getAttribute('data-tab');
+        if (targetTab) {
+          this.switchTab(targetTab);
+          return;
+        }
+      }
+
+      // 2. Modal Close Buttons
+      const closeBtn = e.target.closest('.modal-close-btn') || e.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        const modal = closeBtn.closest('.modal-overlay');
+        if (modal) {
+          modal.classList.remove('active');
+          if (modal.id === 'modal-camera' && this.cameraEngine) {
+            this.cameraEngine.stopStream();
+          }
+        }
+        return;
+      }
+
+      // 3. Modal Overlay Background Click
+      if (e.target.classList.contains('modal-overlay')) {
+        // Don't close onboarding if room is not configured yet
+        if (e.target.id === 'modal-onboarding' && !state.isConfigured()) {
+          return;
+        }
+        e.target.classList.remove('active');
+        if (e.target.id === 'modal-camera' && this.cameraEngine) {
+          this.cameraEngine.stopStream();
+        }
+      }
+    });
   }
 
   bindDOM() {
-    // Tab Navigation Buttons
-    document.querySelectorAll('.nav-item').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const targetTab = btn.getAttribute('data-tab');
-        if (targetTab) {
-          this.switchTab(targetTab);
-        }
-      });
-    });
-
     // Camera Modal Triggers
     const btnOpenCam = document.getElementById('btn-open-camera');
     if (btnOpenCam) {
@@ -78,33 +113,12 @@ class AppController {
       btnShare.addEventListener('click', () => this.openShareModal());
     }
 
-    // Modal Close Buttons
-    const btnCloseShare = document.getElementById('btn-close-share-modal');
-    if (btnCloseShare) {
-      btnCloseShare.addEventListener('click', () => {
-        document.getElementById('modal-share-room').classList.remove('active');
-      });
-    }
-
-    const btnCloseCreate = document.getElementById('btn-close-create-modal');
-    if (btnCloseCreate) {
-      btnCloseCreate.addEventListener('click', () => {
-        document.getElementById('modal-create-room').classList.remove('active');
-      });
-    }
-
-    const btnCloseJoin = document.getElementById('btn-close-join-modal');
-    if (btnCloseJoin) {
-      btnCloseJoin.addEventListener('click', () => {
-        document.getElementById('modal-join-room').classList.remove('active');
-      });
-    }
-
     // Copy Invite Link Button
     const btnCopyInvite = document.getElementById('btn-copy-invite-link');
     if (btnCopyInvite) {
       btnCopyInvite.addEventListener('click', () => {
-        const url = window.location.origin + window.location.pathname + `?room=${state.room.code}`;
+        if (!state.room) return;
+        const url = `${window.location.origin}${window.location.pathname}?room=${state.room.code}`;
         navigator.clipboard.writeText(url).then(() => {
           sound.play('coin');
           this.showToast('📋 Link de convite copiado com sucesso!', 'pot');
@@ -112,7 +126,75 @@ class AppController {
       });
     }
 
-    // Create Room Form
+    // Onboarding Tabs (Criar vs Entrar)
+    const tabCreateBtn = document.getElementById('onboarding-tab-create-btn');
+    const tabJoinBtn = document.getElementById('onboarding-tab-join-btn');
+    const formCreate = document.getElementById('form-onboarding-create');
+    const formJoin = document.getElementById('form-onboarding-join');
+
+    if (tabCreateBtn && tabJoinBtn && formCreate && formJoin) {
+      tabCreateBtn.addEventListener('click', () => {
+        tabCreateBtn.classList.add('active');
+        tabCreateBtn.style.background = 'var(--emerald-subtle)';
+        tabCreateBtn.style.color = 'var(--emerald-presence)';
+        tabJoinBtn.classList.remove('active');
+        tabJoinBtn.style.background = 'transparent';
+        tabJoinBtn.style.color = 'var(--text-secondary)';
+        formCreate.style.display = 'flex';
+        formJoin.style.display = 'none';
+      });
+
+      tabJoinBtn.addEventListener('click', () => {
+        tabJoinBtn.classList.add('active');
+        tabJoinBtn.style.background = 'var(--amber-subtle)';
+        tabJoinBtn.style.color = 'var(--amber-pot)';
+        tabCreateBtn.classList.remove('active');
+        tabCreateBtn.style.background = 'transparent';
+        tabCreateBtn.style.color = 'var(--text-secondary)';
+        formJoin.style.display = 'flex';
+        formCreate.style.display = 'none';
+      });
+    }
+
+    // Onboarding: Form Create Room
+    if (formCreate) {
+      formCreate.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const roomName = document.getElementById('onboard-room-name').value;
+        const fine = document.getElementById('onboard-fine-amount').value;
+        const name = document.getElementById('onboard-admin-name').value;
+        const city = document.getElementById('onboard-admin-city').value;
+        const time = document.getElementById('onboard-admin-time').value;
+        const pix = document.getElementById('onboard-admin-pix').value;
+
+        const newRoom = state.createNewRoom(roomName, fine, name, city, time, pix);
+        document.getElementById('modal-onboarding')?.classList.remove('active');
+        this.showToast(`🎉 Sala "${newRoom.name}" criada com sucesso!`, 'success');
+        this.updateUI();
+        state.startAutoSync(3000);
+        this.openShareModal();
+      });
+    }
+
+    // Onboarding: Form Join Room
+    if (formJoin) {
+      formJoin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('onboard-join-code').value;
+        const name = document.getElementById('onboard-join-name').value;
+        const city = document.getElementById('onboard-join-city').value;
+        const time = document.getElementById('onboard-join-time').value;
+        const pix = document.getElementById('onboard-join-pix').value;
+
+        const newUser = state.joinRoom(code, name, city, time, pix);
+        document.getElementById('modal-onboarding')?.classList.remove('active');
+        this.showToast(`🎉 Bem-vindo ao bonde, ${newUser.name}!`, 'success');
+        this.updateUI();
+        state.startAutoSync(3000);
+      });
+    }
+
+    // Settings Modal Create Room Form
     const createRoomForm = document.getElementById('form-create-new-room');
     if (createRoomForm) {
       createRoomForm.addEventListener('submit', (e) => {
@@ -125,13 +207,14 @@ class AppController {
         const pix = document.getElementById('input-new-admin-pix').value;
 
         const newRoom = state.createNewRoom(roomName, fine, name, city, time, pix);
-        document.getElementById('modal-create-room').classList.remove('active');
-        this.showToast(`🎉 Sala "${newRoom.name}" criada! Código: ${newRoom.code}`, 'success');
+        document.getElementById('modal-create-room')?.classList.remove('active');
+        this.showToast(`🎉 Sala "${newRoom.name}" criada!`, 'success');
+        this.updateUI();
         this.openShareModal();
       });
     }
 
-    // Join Room Form
+    // Settings Modal Join Room Form
     const joinRoomForm = document.getElementById('form-join-existing-room');
     if (joinRoomForm) {
       joinRoomForm.addEventListener('submit', (e) => {
@@ -143,8 +226,9 @@ class AppController {
         const pix = document.getElementById('input-join-user-pix').value;
 
         const newUser = state.joinRoom(code, name, city, time, pix);
-        document.getElementById('modal-join-room').classList.remove('active');
+        document.getElementById('modal-join-room')?.classList.remove('active');
         this.showToast(`🎉 Bem-vindo ao bonde, ${newUser.name}!`, 'success');
+        this.updateUI();
       });
     }
 
@@ -152,13 +236,6 @@ class AppController {
     const btnUserSwitch = document.getElementById('btn-user-switch');
     if (btnUserSwitch) {
       btnUserSwitch.addEventListener('click', () => this.openUserSwitchModal());
-    }
-
-    const btnCloseUserModal = document.getElementById('btn-close-user-modal');
-    if (btnCloseUserModal) {
-      btnCloseUserModal.addEventListener('click', () => {
-        document.getElementById('modal-user-switch').classList.remove('active');
-      });
     }
 
     // Room Settings Form
@@ -171,7 +248,7 @@ class AppController {
         const myTime = document.getElementById('input-my-time').value;
         const myPix = document.getElementById('input-my-pix').value;
 
-        state.room.fineAmount = fineVal;
+        if (state.room) state.room.fineAmount = fineVal;
         state.updateProfile({ city: myCity, schoolTime: myTime, pixKey: myPix });
         this.showToast('Configurações salvas com sucesso!', 'success');
       });
@@ -194,6 +271,24 @@ class AppController {
         }
       });
     }
+  }
+
+  checkUrlAndOpenOnboarding() {
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+
+    const modal = document.getElementById('modal-onboarding');
+    if (!modal) return;
+
+    if (roomParam) {
+      // User arrived via invite link! Auto switch to Join tab
+      const tabJoinBtn = document.getElementById('onboarding-tab-join-btn');
+      const inputJoinCode = document.getElementById('onboard-join-code');
+      if (inputJoinCode) inputJoinCode.value = roomParam.toUpperCase();
+      if (tabJoinBtn) tabJoinBtn.click();
+    }
+
+    modal.classList.add('active');
   }
 
   initCamera() {
@@ -228,7 +323,7 @@ class AppController {
   }
 
   captureAndSubmit() {
-    const user = state.getCurrentUser();
+    const user = state.getCurrentUser() || { name: 'Eu', city: 'Minha Cidade' };
     sound.play('camera_shutter');
 
     let photoData = null;
@@ -237,7 +332,6 @@ class AppController {
     }
 
     if (!photoData) {
-      // Fallback SVG dummy photo if no stream available
       photoData = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450"><rect width="600" height="450" fill="%230f172a"/><text x="300" y="200" fill="%2310b981" font-family="sans-serif" font-size="26" font-weight="bold" text-anchor="middle">SALA DE AULA VERIFICADA 📸</text><text x="300" y="250" fill="%2394a3b8" font-family="sans-serif" font-size="18" text-anchor="middle">Check-in de ${user.name} em ${user.city}</text></svg>`;
     }
 
@@ -254,8 +348,8 @@ class AppController {
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const user = state.getCurrentUser();
-        const photoData = this.cameraEngine.processUploadedImage(img, user.name, user.city);
+        const user = state.getCurrentUser() || { name: 'Eu', city: 'Minha Cidade' };
+        const photoData = this.cameraEngine ? this.cameraEngine.processUploadedImage(img, user.name, user.city) : e.target.result;
         state.submitCheckin(photoData, user.city);
         this.closeCameraModal();
         this.showToast('🎉 Foto enviada com sucesso! (+50 XP)', 'success');
@@ -270,12 +364,15 @@ class AppController {
 
     // Update Bottom Nav UI
     document.querySelectorAll('.nav-item').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+      const isActive = btn.getAttribute('data-tab') === tabId;
+      btn.classList.toggle('active', isActive);
     });
 
     // Update Tab Panes
     document.querySelectorAll('.tab-pane').forEach(pane => {
-      pane.classList.toggle('active', pane.id === tabId);
+      const isActive = pane.id === tabId;
+      pane.classList.toggle('active', isActive);
+      pane.style.display = isActive ? 'flex' : 'none';
     });
 
     this.renderCurrentTab();
@@ -294,9 +391,14 @@ class AppController {
   }
 
   updateUI(event, data) {
-    const user = state.getCurrentUser();
+    if (!state.isConfigured()) {
+      return;
+    }
+
+    const user = state.getCurrentUser() || { avatar: '😎', name: 'Estudante', city: '', schoolTime: '' };
     const totalPot = state.getTotalPotAmount();
     const topSponsor = state.getTopSponsor();
+    const membersCount = state.room.members ? state.room.members.length : 0;
 
     // 1. Update Header
     const userAvatarEl = document.getElementById('header-user-avatar');
@@ -311,26 +413,26 @@ class AppController {
       potValEl.textContent = totalPot.toFixed(2);
       if (event === 'CHECKIN_SUBMITTED' || event === 'DEBT_STATUS_UPDATED') {
         potValEl.classList.remove('pot-value-surge');
-        void potValEl.offsetWidth; // trigger reflow
+        void potValEl.offsetWidth;
         potValEl.classList.add('pot-value-surge');
       }
     }
 
     const potMembersEl = document.getElementById('pot-members-count');
     if (potMembersEl) {
-      potMembersEl.textContent = `${state.room.members.length} amigo${state.room.members.length > 1 ? 's' : ''} no bonde`;
+      potMembersEl.textContent = `${membersCount} amigo${membersCount !== 1 ? 's' : ''} no bonde`;
     }
 
     // Toggle Onboarding Banner if alone in room
     const onboardingBanner = document.getElementById('home-onboarding-banner');
     if (onboardingBanner) {
-      onboardingBanner.style.display = state.room.members.length <= 1 ? 'flex' : 'none';
+      onboardingBanner.style.display = membersCount <= 1 ? 'flex' : 'none';
     }
 
     // Top Sponsor Banner
     const sponsorWrap = document.getElementById('pot-sponsor-banner');
     if (sponsorWrap) {
-      if (topSponsor) {
+      if (topSponsor && topSponsor.currentDebt > 0) {
         sponsorWrap.style.display = 'flex';
         document.getElementById('sponsor-avatar').textContent = topSponsor.avatar || '😴';
         document.getElementById('sponsor-name').textContent = topSponsor.name;
@@ -341,7 +443,7 @@ class AppController {
     }
 
     // 3. Update Today Status
-    const todayCheckin = state.room.checkins.find(c => c.userId === user.id);
+    const todayCheckin = (state.room.checkins || []).find(c => c.userId === user.id);
     const todayBadge = document.getElementById('today-status-badge');
     const btnAction = document.getElementById('btn-open-camera');
 
@@ -366,7 +468,7 @@ class AppController {
     }
 
     // 4. Update Pending Badges in Nav
-    const pendingDebts = state.room.debts.filter(d => d.creditorId === user.id && d.status === 'PENDING_CONFIRMATION').length;
+    const pendingDebts = (state.room.debts || []).filter(d => d.creditorId === user.id && d.status === 'PENDING_CONFIRMATION').length;
     const badgeExtrato = document.getElementById('badge-count-extrato');
     if (badgeExtrato) {
       badgeExtrato.style.display = pendingDebts > 0 ? 'flex' : 'none';
@@ -403,9 +505,9 @@ class AppController {
   openUserSwitchModal() {
     const modal = document.getElementById('modal-user-switch');
     const list = document.getElementById('user-switch-list');
-    if (!modal || !list) return;
+    if (!modal || !list || !state.room) return;
 
-    list.innerHTML = state.room.members.map(m => `
+    list.innerHTML = (state.room.members || []).map(m => `
       <div style="background:var(--bg-surface-raised); border:1px solid ${m.id === state.currentUserId ? 'var(--emerald-presence)' : 'var(--border-strong)'}; border-radius:var(--radius-md); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="window.__selectUser('${m.id}')">
         <div style="display:flex; align-items:center; gap:10px;">
           <span style="font-size:22px;">${m.avatar}</span>
@@ -425,7 +527,7 @@ class AppController {
     const modal = document.getElementById('modal-share-room');
     const codeDisplay = document.getElementById('modal-display-room-code');
     const zapBtn = document.getElementById('btn-whatsapp-invite');
-    if (!modal) return;
+    if (!modal || !state.room) return;
 
     const code = state.room.code;
     const url = `${window.location.origin}${window.location.pathname}?room=${code}`;
@@ -460,14 +562,6 @@ class AppController {
     if (modal) modal.classList.add('active');
   }
 
-  checkUrlInvitation() {
-    const params = new URLSearchParams(window.location.search);
-    const roomParam = params.get('room');
-    if (roomParam && roomParam.toUpperCase() !== state.room.code) {
-      this.openJoinRoomModal(roomParam.toUpperCase());
-    }
-  }
-
   showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -488,6 +582,8 @@ class AppController {
   }
 
   initGlobalHandlers() {
+    window.__APP__ = this;
+
     window.__vote = (checkinId, type) => {
       state.voteCheckin(checkinId, type);
       this.showToast(type === 'VALID' ? 'Voto VÁLIDO registrado!' : '🚨 Voto de FRAUDE registrado!', type === 'VALID' ? 'success' : 'error');
@@ -495,13 +591,12 @@ class AppController {
 
     window.__react = (checkinId, type, event) => {
       state.reactCheckin(checkinId, type);
-      // Spawn floating emoji
       const emojis = { laugh: '😂', clap: '👏', skull: '💀' };
       const el = document.createElement('div');
       el.className = 'floating-reaction';
       el.textContent = emojis[type] || '✨';
-      el.style.left = `${event.clientX || window.innerWidth / 2}px`;
-      el.style.top = `${event.clientY || window.innerHeight / 2}px`;
+      el.style.left = `${(event && event.clientX) ? event.clientX : window.innerWidth / 2}px`;
+      el.style.top = `${(event && event.clientY) ? event.clientY : window.innerHeight / 2}px`;
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 1400);
     };
@@ -551,20 +646,16 @@ class AppController {
 
     window.__selectUser = (userId) => {
       state.switchActiveUser(userId);
-      document.getElementById('modal-user-switch').classList.remove('active');
-      this.showToast(`Agora você está controlando: ${state.getCurrentUser().name}`, 'pot');
-    };
-
-    window.__resetMock = () => {
-      state.resetMockData();
-      this.showToast('Dados de demonstração restaurados!', 'info');
+      document.getElementById('modal-user-switch')?.classList.remove('active');
+      const cur = state.getCurrentUser();
+      if (cur) this.showToast(`Agora você está controlando: ${cur.name}`, 'pot');
     };
   }
 
   registerPWA() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(err => {
+        navigator.serviceWorker.register('./service-worker.js').catch(err => {
           console.warn('SW registration failed:', err);
         });
       });
@@ -572,7 +663,15 @@ class AppController {
   }
 }
 
-// Instantiate on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.__APP__ = new AppController();
-});
+// Immediate robust boot
+function boot() {
+  if (!window.__APP__) {
+    window.__APP__ = new AppController();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}

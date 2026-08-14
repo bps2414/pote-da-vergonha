@@ -2,18 +2,25 @@
 import { state } from './state.js';
 
 export function calculateSettlement() {
-  const members = state.room.members || [];
-  const totalPot = state.getTotalPotAmount();
+  const members = (state.room && state.room.members) ? state.room.members : [];
+  const totalPot = state.getTotalPotAmount ? state.getTotalPotAmount() : 0;
 
-  // Find winners (members with minimum fails, preferably 0 fails)
+  if (members.length === 0) {
+    return {
+      totalPot: 0,
+      minFails: 0,
+      winners: [],
+      prizePerWinner: 0
+    };
+  }
+
   const minFails = Math.min(...members.map(m => m.totalFails || 0));
   const winners = members.filter(m => (m.totalFails || 0) === minFails);
-
   const prizePerWinner = winners.length > 0 ? (totalPot / winners.length) : 0;
 
   return {
     totalPot,
-    minFails,
+    minFails: isFinite(minFails) ? minFails : 0,
     winners,
     prizePerWinner
   };
@@ -24,7 +31,7 @@ export function renderExtratoFinanceiro(containerElement) {
 
   const currentUserId = state.currentUserId;
   const settlement = calculateSettlement();
-  const debts = state.room.debts || [];
+  const debts = (state.room && state.room.debts) ? state.room.debts : [];
 
   containerElement.innerHTML = `
     <!-- Settlement & Prize Distribution Banner -->

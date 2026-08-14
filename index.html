@@ -1855,6 +1855,110 @@ html, body {
 
     <!-- ================= MODALS ================= -->
 
+    <!-- Modal: Onboarding (Criar ou Entrar em uma Sala) -->
+    <div id="modal-onboarding" class="modal-overlay">
+      <div class="modal-sheet" style="max-height:92vh;">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">🎓</span>
+            <span class="modal-title">Quem Falta Se Ferra</span>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+            O objetivo é não faltar na aula. Quem falta paga multa no cofre do bonde! Crie sua sala ou entre com o código do seu amigo:
+          </p>
+
+          <!-- Onboarding Tab Switch (Criar vs Entrar) -->
+          <div style="display:flex; background:var(--bg-surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:4px; gap:6px;">
+            <button id="onboarding-tab-create-btn" type="button" class="btn-vote active" style="font-size:12px; padding:10px; flex:1; background:var(--crimson-subtle); color:var(--crimson-penalty); border:none; border-radius:var(--radius-sm); font-weight:800; cursor:pointer;">
+              ➕ Criar Nova Sala
+            </button>
+            <button id="onboarding-tab-join-btn" type="button" class="btn-vote" style="font-size:12px; padding:10px; flex:1; background:transparent; color:var(--text-secondary); border:none; border-radius:var(--radius-sm); font-weight:800; cursor:pointer;">
+              🔑 Já Tenho o Código
+            </button>
+          </div>
+
+          <!-- Form 1: Criar Sala -->
+          <form id="form-onboarding-create" style="display:flex; flex-direction:column; gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="onboard-room-name">Nome da Sala / Turma *</label>
+              <input id="onboard-room-name" type="text" class="form-input" placeholder="Ex: Terceirão 2026, Bonde das 7h" required />
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label class="form-label" for="onboard-admin-name">Seu Nome *</label>
+                <input id="onboard-admin-name" type="text" class="form-input" placeholder="Ex: Bryan" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="onboard-admin-city">Sua Cidade / UF *</label>
+                <input id="onboard-admin-city" type="text" class="form-input" placeholder="Ex: São Paulo - SP" required />
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label class="form-label" for="onboard-admin-time">Horário da Aula *</label>
+                <input id="onboard-admin-time" type="text" class="form-input" placeholder="07:30 - 12:30" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="onboard-fine-amount">Multa por Falta *</label>
+                <select id="onboard-fine-amount" class="form-select">
+                  <option value="5.00">R$ 5,00 por falta</option>
+                  <option value="10.00">R$ 10,00 por falta</option>
+                  <option value="15.00">R$ 15,00 por falta</option>
+                  <option value="20.00">R$ 20,00 por falta</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="onboard-admin-pix">Sua Chave PIX (Para receber prêmio)</label>
+              <input id="onboard-admin-pix" type="text" class="form-input" placeholder="Ex: seu-pix@email.com" />
+            </div>
+
+            <button type="submit" class="btn-primary-action" style="margin-top:6px;">
+              🚀 Criar Sala e Gerar Link
+            </button>
+          </form>
+
+          <!-- Form 2: Entrar na Sala -->
+          <form id="form-onboarding-join" style="display:none; flex-direction:column; gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="onboard-join-code">Código da Sala do Amigo *</label>
+              <input id="onboard-join-code" type="text" class="form-input" placeholder="Ex: BONDE-1234" style="font-family:var(--font-mono); text-transform:uppercase; font-size:16px; font-weight:800; color:var(--amber-pot);" required />
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label class="form-label" for="onboard-join-name">Seu Nome *</label>
+                <input id="onboard-join-name" type="text" class="form-input" placeholder="Ex: Matheus" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="onboard-join-city">Sua Cidade / UF *</label>
+                <input id="onboard-join-city" type="text" class="form-input" placeholder="Ex: Rio de Janeiro - RJ" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="onboard-join-time">Horário da sua Aula *</label>
+              <input id="onboard-join-time" type="text" class="form-input" placeholder="Ex: 08:00 - 13:00" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="onboard-join-pix">Sua Chave PIX (opcional)</label>
+              <input id="onboard-join-pix" type="text" class="form-input" placeholder="Ex: chave@pix.com" />
+            </div>
+
+            <button type="submit" class="btn-primary-action" style="margin-top:6px; background:linear-gradient(135deg, var(--emerald-presence), #059669); color:#000;">
+              ⚡ Entrar no Bonde
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal Compartilhar / Convidar Amigos -->
     <div id="modal-share-room" class="modal-overlay">
       <div class="modal-sheet">

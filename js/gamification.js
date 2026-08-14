@@ -24,7 +24,18 @@ export function getMemberTitle(member, allMembers) {
 export function renderRanking(containerElement) {
   if (!containerElement) return;
 
-  const members = state.room.members || [];
+  const members = (state.room && state.room.members) ? state.room.members : [];
+  if (members.length === 0) {
+    containerElement.innerHTML = `
+      <div style="text-align:center; padding:30px 20px; color:var(--text-muted);">
+        <div style="font-size:32px; margin-bottom:8px;">👥</div>
+        <p style="font-weight:700;">Nenhum membro na sala ainda.</p>
+        <p style="font-size:12px; margin-top:4px;">Convide seus amigos para competir no placar!</p>
+      </div>
+    `;
+    return;
+  }
+
   // Sort primarily by highest streak / lowest fails
   const sorted = [...members].sort((a, b) => {
     if ((b.streak || 0) !== (a.streak || 0)) {
