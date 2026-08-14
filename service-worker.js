@@ -1,20 +1,9 @@
-const CACHE_NAME = 'quem-falta-v3';
+const CACHE_NAME = 'quem-falta-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/styles/bundle.css',
-  '/styles/main.css',
-  '/styles/components.css',
-  '/styles/animations.css',
-  '/js/app.js',
-  '/js/state.js',
-  '/js/storage.js',
-  '/js/camera.js',
-  '/js/tribunal.js',
-  '/js/pot-finance.js',
-  '/js/gamification.js',
-  '/js/audio.js',
-  '/js/mock-data.js',
+  '/js/app.bundle.js',
   '/assets/icon.svg',
   '/manifest.json'
 ];

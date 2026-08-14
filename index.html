@@ -81,24 +81,26 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  max-width: 100%;
 }
 
 html, body {
   width: 100%;
+  max-width: 100vw;
   min-height: 100%;
   background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.5;
-  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-x: hidden !important;
   letter-spacing: -0.01em;
 }
 
 /* App Container */
 #app-root {
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
   min-height: 100vh;
   margin: 0 auto;
   background-color: var(--bg-surface);
@@ -108,6 +110,8 @@ html, body {
   box-shadow: 0 0 70px rgba(0, 0, 0, 0.8);
   border-left: 1px solid var(--border-subtle);
   border-right: 1px solid var(--border-subtle);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 @media (max-width: 520px) {
@@ -116,6 +120,19 @@ html, body {
     border-right: none;
     box-shadow: none;
   }
+}
+
+.main-view-container {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 14px;
+  padding-bottom: calc(var(--bottom-nav-height) + 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Header Bar */
@@ -212,16 +229,6 @@ html, body {
   color: var(--text-primary);
 }
 
-/* Main Content Area */
-.main-view-container {
-  flex: 1;
-  padding: 16px;
-  padding-bottom: calc(var(--bottom-nav-height) + 24px);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
 /* Bottom Navigation Bar */
 .bottom-nav {
   position: fixed;
@@ -229,40 +236,47 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 520px;
-  height: var(--bottom-nav-height);
-  background: rgba(18, 23, 34, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  max-width: 500px;
+  height: 60px;
+  background: rgba(15, 20, 31, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  padding: 0 6px;
+  justify-content: space-between;
+  padding: 0 4px;
   z-index: 100;
+  box-sizing: border-box;
 }
 
 .nav-item {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   background: transparent;
   border: none;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 4px;
+  padding: 6px 2px;
   transition: all 0.2s ease;
   position: relative;
 }
 
+.nav-item span {
+  font-size: 9px;
+  white-space: nowrap;
+}
+
 .nav-item svg, .nav-item .nav-emoji {
-  font-size: 20px;
+  font-size: 17px;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -1578,7 +1592,7 @@ html, body {
 
         <button id="btn-share-room" class="room-pill-btn" title="Convidar amigos para este bonde">
           <span>📲</span>
-          <span id="header-room-code">BONDE1</span>
+          <span id="header-room-code">CRIAR SALA</span>
         </button>
 
         <div id="btn-user-switch" class="user-switch-avatar" title="Trocar de amigo (Simulador)">
@@ -1611,16 +1625,16 @@ html, body {
         <div class="pot-hero-card">
           <div class="pot-header-label">
             <span class="pot-tag">💰 Pote das Multas Acumulado</span>
-            <span id="pot-members-count" class="pot-members-count">4 amigos no bonde</span>
+            <span id="pot-members-count" class="pot-members-count">1 amigo no bonde</span>
           </div>
 
           <div class="pot-amount-display">
             <span class="pot-currency">R$</span>
-            <span id="pot-value-number" class="pot-value">45.00</span>
+            <span id="pot-value-number" class="pot-value">0.00</span>
           </div>
 
           <!-- Top Sponsor Banner -->
-          <div id="pot-sponsor-banner" class="pot-sponsor-banner">
+          <div id="pot-sponsor-banner" class="pot-sponsor-banner" style="display:none;">
             <div class="pot-sponsor-info">
               <div id="sponsor-avatar" class="sponsor-avatar">😴</div>
               <div class="sponsor-name-wrap">
@@ -2146,6 +2160,6 @@ html, body {
   </div>
 
   <!-- Application Modules -->
-  <script type="module" src="./js/app.js"></script>
+  <script defer src="./js/app.bundle.js"></script>
 </body>
 </html>
