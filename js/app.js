@@ -434,9 +434,9 @@ class AppController {
 
     if (zapBtn) {
       const msg = encodeURIComponent(
-        `🎓 *CONVITE: BONDE DOS PRESENTES* 🎓\n\n` +
+        `🚨 *CONVITE: QUEM FALTA SE FERRA* 🚨\n\n` +
         `Entra aí no nosso bonde da escola pra gente não faltar na aula!\n` +
-        `Quem falta paga multa no cofrinho! 💰\n\n` +
+        `Quem falta paga multa no cofre! 💰\n\n` +
         `👉 Clica no link para entrar na minha sala:\n${url}\n\n` +
         `Código da sala: *${code}*`
       );

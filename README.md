@@ -1,11 +1,11 @@
-# 🎓 Bonde dos Presentes - Bate-Ponto Escolar (PWA)
+# 🚨 Quem Falta Se Ferra - Bate-Ponto Escolar (PWA)
 
 <p align="center">
-  <img src="assets/icon.svg" width="120" height="120" alt="Logo Bonde dos Presentes" />
+  <img src="assets/icon.svg" width="120" height="120" alt="Logo Quem Falta Se Ferra" />
 </p>
 
 <p align="center">
-  <b>Nosso objetivo é não faltar!</b> Aplicativo Web Mobile-First (PWA) de gamificação social para amigos de cidades diferentes combaterem a falta na escola através do cofrinho de multas do Bonde dos Presentes, comprovação de presença com fotos no estilo BeReal, julgamento ao vivo no Tribunal dos Amigos e extrato de cobrança PIX com confirmação em 2 etapas.
+  <b>Quem falta se ferra!</b> Aplicativo Web Mobile-First (PWA) de gamificação social para amigos de cidades diferentes combaterem a falta na escola através do cofre de multas do Quem Falta Se Ferra, comprovação de presença com fotos no estilo BeReal, julgamento ao vivo no Tribunal dos Amigos e extrato de cobrança PIX com confirmação em 2 etapas.
 </p>
 
 <p align="center">

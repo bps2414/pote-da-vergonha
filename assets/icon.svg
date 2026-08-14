@@ -2,6 +2,6 @@
   <rect width="512" height="512" rx="128" fill="#0a0d14"/>
   <circle cx="256" cy="256" r="190" fill="#121722" stroke="#ff2a5f" stroke-width="12"/>
   <circle cx="256" cy="256" r="140" fill="rgba(255, 42, 95, 0.1)"/>
-  <text x="256" y="270" font-family="Arial, sans-serif" font-size="130" text-anchor="middle" dominant-baseline="middle">🎓</text>
-  <text x="256" y="380" font-family="Arial, sans-serif" font-weight="900" font-size="30" fill="#ffb703" text-anchor="middle">BONDE DOS PRESENTES</text>
+  <text x="256" y="270" font-family="Arial, sans-serif" font-size="130" text-anchor="middle" dominant-baseline="middle">🚨</text>
+  <text x="256" y="380" font-family="Arial, sans-serif" font-weight="900" font-size="30" fill="#ffb703" text-anchor="middle">QUEM FALTA SE FERRA</text>
 </svg>

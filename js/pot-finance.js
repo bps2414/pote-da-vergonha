@@ -94,8 +94,8 @@ function renderDebtCard(debt, currentUserId) {
 
   // Zap billing link
   const zapMessage = encodeURIComponent(
-    `🚨 *COBRANÇA: BONDE DOS PRESENTES* 🚨\n\n` +
-    `Fala ${debt.debtorName}, você faltou na aula (${debt.reason}) e deve *R$ ${debt.amount.toFixed(2)}* pro cofrinho do bonde!\n\n` +
+    `🚨 *COBRANÇA: QUEM FALTA SE FERRA* 🚨\n\n` +
+    `Fala ${debt.debtorName}, você faltou na aula (${debt.reason}) e deve *R$ ${debt.amount.toFixed(2)}* pro cofre!\n\n` +
     `🔑 Chave PIX: ${debt.creditorPix || 'combinar no privado'}\n\n` +
     `Paga aí e depois clica em "Já Paguei" no aplicativo para eu confirmar! 🚀`
   );

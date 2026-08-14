@@ -1,7 +1,7 @@
 {
-  "name": "bonde-dos-presentes",
+  "name": "quem-falta-se-ferra",
   "version": "1.0.0",
-  "description": "Jogo social mobile-first de presença escolar com Tribunal BeReal e cofrinho de multas.",
+  "description": "Quem falta se ferra! Jogo social mobile-first de presença escolar com Tribunal BeReal e multas em dinheiro.",
   "main": "server.js",
   "type": "module",
   "scripts": {
