@@ -1,7 +1,8 @@
-const CACHE_NAME = 'pote-vergonha-v1';
+const CACHE_NAME = 'quem-falta-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
+  '/styles/bundle.css',
   '/styles/main.css',
   '/styles/components.css',
   '/styles/animations.css',
@@ -14,6 +15,7 @@ const ASSETS_TO_CACHE = [
   '/js/gamification.js',
   '/js/audio.js',
   '/js/mock-data.js',
+  '/assets/icon.svg',
   '/manifest.json'
 ];
 
@@ -45,26 +47,17 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (event.request.url.includes('/api/')) return; // Don't cache dynamic API requests
+  if (event.request.url.includes('/api/')) return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch in background to update cache (stale-while-revalidate)
-        fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-            }
-          })
-          .catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/index.html');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const resClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
